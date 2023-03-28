@@ -1,13 +1,24 @@
 package main
 
 import (
-	//"fmt"
+	"fmt"
+	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/text"
+	"golang.org/x/image/font"
+	"golang.org/x/image/font/opentype"
+	"github.com/hajimehoshi/ebiten/v2/examples/resources/fonts"
+
+
 	"image/color"
 	"log"
-
-	"github.com/hajimehoshi/ebiten/v2"
+	"strconv"
 )
+var (
+	mplusNormalFont font.Face
+	fontSize        int = 36
+	grid = [81]int{0, 7, 2, 0, 3, 1, 9, 0, 0, 8, 0, 0, 0, 0, 9, 0, 5, 7, 5, 0, 0, 8, 2, 0, 0, 1, 0, 2, 0, 4, 0, 0, 3, 0, 9, 0, 3, 9, 6, 2, 1, 0, 0, 4, 5, 1, 0, 0, 0, 0, 6, 0, 3, 2, 0, 0, 3, 0, 0, 0, 0, 2, 0, 4, 0, 5, 9, 6, 0, 0, 0, 8, 9, 0, 0, 0, 0, 4, 0, 0, 1}
 
+)
 type Game struct{}
 
 func (g *Game) Update() error {
@@ -29,6 +40,11 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		screen.DrawImage(rect, op)
 		op2.GeoM.Translate(float64(1+i%9*70), float64(1+i/9*70))
 		screen.DrawImage(rect2, op2)
+		if grid[i]!=0{
+			row := i%9
+			col := i/9
+			text.Draw(screen, fmt.Sprintf(strconv.Itoa(grid[i])), mplusNormalFont,25+row*70,45+col*70,color.Black)
+		}
 	}
 }
 
@@ -40,6 +56,15 @@ func main() {
 	g := &Game{}
 	ebiten.SetWindowSize(600, 600)
 	ebiten.SetWindowTitle("Sudoku")
+	tt, err := opentype.Parse(fonts.MPlus1pRegular_ttf)
+	mplusNormalFont, err = opentype.NewFace(tt, &opentype.FaceOptions{
+		Size:    float64(fontSize),
+		DPI:     72,
+		Hinting: font.HintingFull,
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
 	if err := ebiten.RunGame(g); err != nil {
 		log.Fatal(err)
 	}
